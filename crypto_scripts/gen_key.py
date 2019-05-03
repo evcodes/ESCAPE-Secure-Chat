@@ -16,4 +16,10 @@ def gen_keypair():
     file_out.write(key.publickey().export_key())
     file_out.close()
 
-gen_keypair()
+def gen_shared_key():
+    file_out = open("shared_privkey.bin","wb")
+    file_out.write( get_random_bytes(256))
+    file_out.close()
+
+
+gen_shared_key()
