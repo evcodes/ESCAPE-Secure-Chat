@@ -3,17 +3,17 @@ from Crypto.Cipher import AES
 from Crypto.Util import Counter
 from Crypto import Random
 from Crypto.Random import get_random_bytes
-from Crypto.Util import Padding
-
+from Crypto.Util.Padding import pad
 
 '''
 Steps for sending a message
     1. Generate nonce and use as IV for CBC [x]
     2. Used private key that is shared amongst members of chat to encrypt the message
-    3. Sign the message with sender's private key
-    4. Send the message to the server
+    3. Find out the sequence number in the user's state file and increment the counter by 1
+    4. Build out the message structure
+    5. Sign the message with sender's private key
+    6. Send the message to the server
 '''
-
 
 
 def read_priv_key():
@@ -29,14 +29,14 @@ nonce = generate_nonce()
 def encrypt_message(m):
     key = read_priv_key()
     plaintext = m.encode('utf-8')
-    print(key)
-    # cipher = AES.new(key, AES.MODE_CBC, nonce)
-    plaintext = Padding.pad(plaintext, AES.block_size)
-    print(plaintext)
-    print(nonce.hex())
-    # ciphertext = cipher.encrypt(m)
+    cipher = AES.new(key, AES.MODE_CBC, nonce)
+    ciphertext = cipher.encrypt(pad(plaintext, AES.block_size))
 
-    
+    build_message(000, nonce, ciphertext)
+
+def build_message(seq,sign,nonce,enc_m):
+    print("hello")
+
 
 
 
