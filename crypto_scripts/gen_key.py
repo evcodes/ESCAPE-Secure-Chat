@@ -21,19 +21,13 @@ def generate_RSA(bits=2048):
     file_out = open("rsa_pubkey.pem", "wb")
     file_out.write(public_key)
     file_out.close()
-    return private_key, public_key
+    return (private_key, public_key)
 
 
-
-
-<<<<<<< HEAD
-generate_RSA()
-=======
 def gen_shared_key():
     file_out = open("shared_privkey.bin","wb")
     file_out.write( get_random_bytes(16))
     file_out.close()
 
 
-gen_shared_key()
->>>>>>> fa48ca8975a9acb18c4f95ce16d9373accce6e03
+generate_RSA(p)

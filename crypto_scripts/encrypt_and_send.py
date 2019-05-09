@@ -5,6 +5,8 @@ from Crypto import Random
 from Crypto.Random import get_random_bytes
 from Crypto.Util.Padding import pad
 
+from sign import generate_signature
+
 '''
 Steps for sending a message
     1. Generate nonce and use as IV for CBC [x]
@@ -20,6 +22,19 @@ def read_priv_key():
     data = open("shared_privkey.bin","rb").read()
     return data
 
+def read_state():
+    # Get encryption key
+    ifile = open(statefile, 'rt')
+    line = ifile.readline()
+    enckey = line[len("enckey: "):len("enckey: ") + 32]
+    enckey = bytes.fromhex(enckey)
+
+    # Get sqn num
+    sndsqn = line[len("sndsqn: "):]
+    sndsqn = int(sndsqn, base=10)
+    ifile.close()
+    return (enckey,sndsqn)
+    
 def generate_nonce():
     nonce = get_random_bytes(AES.block_size)
     return nonce
@@ -27,16 +42,83 @@ def generate_nonce():
 nonce = generate_nonce()
 
 def encrypt_message(m):
-    key = read_priv_key()
     plaintext = m.encode('utf-8')
+    key,sqn = read_state()
     cipher = AES.new(key, AES.MODE_CBC, nonce)
-    ciphertext = cipher.encrypt(pad(plaintext, AES.block_size))
+    content = pad(plaintext, AES.block_size)
+    ciphertext = cipher.encrypt(content)
 
-    build_message(000, nonce, ciphertext)
+    sign = generate_signature(content)
+
+    return (sqn + sign + nonce + ciphertext)
 
 def build_message(seq,sign,nonce,enc_m):
-    print("hello")
+    '''
+    _______________________
+    |___|sequence|signature|
+    |________Nonce_________|
+    |                      |  
+    |       Message        |
+    |______________________|
+    |____________|pad|p.len|
+    '''
+    
 
+
+
+    return ("Hello")
+
+
+def decrypt_message(inputfile):
+    f = open(inputfile, 'rb')
+    ciphertext = f.read()
+    f.close()
+
+    # separate the initial value from the encrypted plaintext in the ciphertext
+    iv = ciphertext[:AES.block_size]
+    cipher_text = ciphertext[AES.block_size:]
+
+    # create AES cipher object
+    key = keystring.encode('utf-8')
+    cipher = AES.new(key, AES.MODE_CBC, iv)
+
+    # decrypt ciphertext
+    plaintext = cipher.decrypt(cipher_text)
+    plaintext = Padding.unpad(plaintext, AES.block_size)
+
+    print(plaintext.decode('utf-8'))
+
+    # write out the plaintext obtained into the output file
+    out = open(outputfile, 'wb')
+    out.write(plaintext)
+    out.close()
+
+statefile = "sndstate.txt"
+inputfile = ""
+outputfile = ""
+
+try:
+    opts, args = getopt.getopt(sys.argv[1:],'hi:o:')
+except getopt.GetoptError:
+    print("Usage: encrypt_and_send.py -i <inputfile> -o <outputfile>")
+    sys.exit(2)
+
+for opt, arg in opts:
+    if opt == '-h':
+        print("Usage: encrypt_and_send.py -i <inputfile> -o <outputfile>")
+        sys.exit()
+    elif opt == '-i':
+        inputfile = arg
+    elif opt == '-o':
+        outputfile = arg
+
+if len(inputfile) == 0:
+    print("Error: Name of input file is missing.")
+    sys.exit(2)
+
+if len(outputfile) == 0:
+    print("Error: Name of output file is missing.")
+    sys.exit(2)
 
 
 
@@ -67,27 +149,27 @@ encrypt_message("Hello World")
 #     print('Decrypting...\n', end='')
 
 #     # read the saved nonce and the ciphertext from the input file
-#     f = open(inputfile, 'rb')
-#     ciphertext = f.read()
-#     f.close()
+    # f = open(inputfile, 'rb')
+    # ciphertext = f.read()
+    # f.close()
 
-#     # separate the initial value from the encrypted plaintext in the ciphertext
-#     iv = ciphertext[:AES.block_size]
-#     cipher_text = ciphertext[AES.block_size:]
+    # # separate the initial value from the encrypted plaintext in the ciphertext
+    # iv = ciphertext[:AES.block_size]
+    # cipher_text = ciphertext[AES.block_size:]
 
-#     # create AES cipher object
-#     key = keystring.encode('utf-8')
-#     cipher = AES.new(key, AES.MODE_CBC, iv)
+    # # create AES cipher object
+    # key = keystring.encode('utf-8')
+    # cipher = AES.new(key, AES.MODE_CBC, iv)
 
-#     # decrypt ciphertext
-#     plaintext = cipher.decrypt(cipher_text)
-#     plaintext = Padding.unpad(plaintext, AES.block_size)
+    # # decrypt ciphertext
+    # plaintext = cipher.decrypt(cipher_text)
+    # plaintext = Padding.unpad(plaintext, AES.block_size)
 
-#     print(plaintext.decode('utf-8'))
+    # print(plaintext.decode('utf-8'))
 
-#     # write out the plaintext obtained into the output file
-#     out = open(outputfile, 'wb')
-#     out.write(plaintext)
-#     out.close()
+    # # write out the plaintext obtained into the output file
+    # out = open(outputfile, 'wb')
+    # out.write(plaintext)
+    # out.close()
 
 # print('Done.')
