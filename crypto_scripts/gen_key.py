@@ -1,7 +1,7 @@
 from Crypto.Cipher import AES
 from Crypto.Random import get_random_bytes
 from Crypto.PublicKey import RSA
-
+from Crypto.Hash import SHA256
 
 def generate_RSA(bits=2048):
     '''
@@ -30,4 +30,12 @@ def gen_shared_key():
     file_out.close()
 
 
-generate_RSA(p)
+def sample_hash(content):
+    h = SHA256.new()
+    h.update(content)
+
+    print(h.hexdigest())
+    # print(h.digest())
+
+sample_hash(b'Some text to be hashed')
+generate_RSA()

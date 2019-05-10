@@ -34,11 +34,3 @@ def verifiy_signature(signature, m):
     verified = verifier.verify(h, signature)
     assert verified, 'Signature verification failed'
     print ('Successfully verified message')
-
-
-message = "I want this stream signed"
-sig = generate_signature(message)
-
-temp = message.encode('utf-8')
-
-verifiy_signature(sig, temp)
