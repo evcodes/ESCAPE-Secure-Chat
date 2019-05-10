@@ -58,6 +58,13 @@ def generate_nonce():
 
 nonce = generate_nonce()
 
+
+# Ensures that there are 4 digits so we have some kind of standard length of sequence numbers
+# Reset after we reach 9999 messages 
+def pad_sqn(sqn):
+    print("{:04d}".format(sqn))
+    return ("{:04d}".format(sqn))
+
 def encrypt_message():
     result = read_message()
     plaintext = result.encode('utf-8')
@@ -66,15 +73,15 @@ def encrypt_message():
     cipher = AES.new(key, AES.MODE_CBC, nonce)
     content = pad(plaintext, AES.block_size)
     ciphertext = cipher.encrypt(content)
-    
-    print(ciphertext)
     sign = generate_signature(content.decode('utf-8'))
+    
     update_state(key, sqn)
+    sqn = pad_sqn(sqn)
     sqn = str(sqn).encode('utf-8')
-
-    print(len(sqn)) # 1 byte
+    print(len(sqn)) # 4 bytes
     print(len(sign)) # 256 bytes
     print(len(nonce)) # 16 bytes
+    
     build_message(sqn + sign + nonce + ciphertext)
     
 

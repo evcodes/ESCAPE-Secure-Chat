@@ -3,12 +3,17 @@ from Crypto.Cipher import AES
 from Crypto.Util import Counter
 from Crypto import Random
 from Crypto.Random import get_random_bytes
-from Crypto.Util.Padding import pad
+from Crypto.Util.Padding import unpad
 from sign import generate_signature
 
 statefile = "rcvstate.txt"
 inputfile = ""
 outputfile = ""
+
+def verify_sqn(msg_sqn,rcv_state):
+    msg_sqn = msg_sqn.decode('utf-8')
+    return int(msg_sqn) > rcv_state
+    
 
 def read_state():
     # Get decryption key
@@ -28,8 +33,16 @@ def decrypt_message():
     f = open(inputfile, 'rb')
     ciphertext = f.read()
     f.close()
+    
+    (key, rcv) = read_state()
 
-    # separate the initial value from the encrypted plaintext in the ciphertext
+    ## If message number is not greater than the one in our state file, do not encrypt
+    if(verify_sqn(ciphertext[0:4],rcv) is False): 
+        return 
+    
+    # Verfiy the signature
+    sign = ciphertext[4:4+256]
+    print(sign)
     iv = ciphertext[:AES.block_size]
     # cipher_text = ciphertext[AES.block_size:]
 
