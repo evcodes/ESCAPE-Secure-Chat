@@ -3,6 +3,7 @@
 
 import os, sys, getopt, time
 from netinterface import network_interface
+from decrypt import decrypt_message
 
 NET_PATH = './'
 OWN_ADDR = 'B'
@@ -43,11 +44,14 @@ netif = network_interface(NET_PATH, OWN_ADDR)
 print('Main loop started...')
 while True:
 # Calling receive_msg() in non-blocking mode ... 
-#	status, msg = netif.receive_msg(blocking=False)    
-#	if status: print(msg)      # if status is True, then a message was returned in msg
-#	else: time.sleep(2)        # otherwise msg is empty
+	status, msg = netif.receive_msg(blocking=False)
+
+	if status: 
+		msg = decrypt_message(msg, "./" + OWN_ADDR + "/rcvstate.txt", "./" + OWN_ADDR + "/rsa_pubkey.pem")    
+		print(msg)      # if status is True, then a message was returned in msg
+	else: time.sleep(2)        # otherwise msg is empty
 
 # Calling receive_msg() in blocking mode ...
 	status, msg = netif.receive_msg(blocking=True)      # when returns, status is True and msg contains a message 
-	print(msg.decode('utf-8'))
+	print(msg)
     
