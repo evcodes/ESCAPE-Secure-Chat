@@ -30,7 +30,7 @@ INITIATOR_ID = OWN_ADDR
 PARTICIPANT_LIST = 'BC'
 
 shared_key = get_random_bytes(16)
-print(shared_key)
+
 
 pubkey_list_read = open(pubkey_list_address, "r")
 pubkey_list_file = pubkey_list_read.read()
@@ -59,7 +59,6 @@ for PARTICIPANT in PARTICIPANT_LIST:
             checker +=1
             get_key = key.split("pubkey:")
             key_str = get_key[1]
-            print(key_str)
     if checker == 0:
         print("No such public key string found!")
 
@@ -81,5 +80,6 @@ for PARTICIPANT in PARTICIPANT_LIST:
     print(len(shared_key_message))
     # print(len(timestamp_str.enocde(encoding='utf_8')))
     print(len(c_text))
-    netif.send_msg('B', shared_key_message)
+    netif.send_msg(PARTICIPANT, shared_key_message)
+    netif.send_msg(PARTICIPANT, shared_key_message)
     print("Establish session initiated")
