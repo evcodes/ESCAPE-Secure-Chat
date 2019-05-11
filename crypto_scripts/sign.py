@@ -13,11 +13,11 @@ h.update(temp)
 
 
 private_key = False
-with open ("rsa_privkey.pem", "r") as myfile:
+with open ("rsa_privkey_A.txt", "r") as myfile:
     private_key = RSA.importKey(myfile.read())
 
 public_key = False
-with open ("rsa_pubkey.pem", "r") as myfile:
+with open ("rsa_pubkey_A.txt", "r") as myfile:
     public_key = RSA.importKey(myfile.read())
 
 signer = PKCS1_v1_5.new(private_key)

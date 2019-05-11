@@ -4,9 +4,6 @@ from Crypto.PublicKey import RSA
 
 # Generate the RSA key for every user
 
-def gen_key_pair(passpharse):
-    new_key = RSA.generate(bits, e=65537)
-    return key.exportKey(passphrase=passphrase), key.publickey().exportKey()
 
 def generate_RSA(bits=2048):
     '''
@@ -14,7 +11,6 @@ def generate_RSA(bits=2048):
     param: bits The key length in bits
     Return private key and public key
     '''
-    from Crypto.PublicKey import RSA
 
 
     new_key = RSA.generate(bits, e=65537)
@@ -59,14 +55,5 @@ def generate_RSA(bits=2048):
 
 
 
-# <<<<<<< HEAD
+
 generate_RSA()
-#
-# def gen_shared_key():
-#     file_out = open("shared_privkey.bin","wb")
-#     file_out.write( get_random_bytes(16))
-#     file_out.close()
-
-
-
-# >>>>>>> fa48ca8975a9acb18c4f95ce16d9373accce6e03
