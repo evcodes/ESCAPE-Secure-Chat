@@ -96,6 +96,10 @@ for addr in ADDR_SPACE:
 		os.mkdir(addr_dir)
 		os.mkdir(addr_dir + '/IN')
 		os.mkdir(addr_dir + '/OUT')
+		f=open(addr_dir+"/sndstate.txt", "a+")
+		f.write("enckey: 0123456789abcdef0123456789abcdef\nsndsqn: 0")
+		f=open(addr_dir+"/rcvstate.txt", "a+")
+		f.write("deckey: 0123456789abcdef0123456789abcdef\nrcvsqn: 0")
 		print('Done.')
 
 # if program was called with --clean, perform clean-up here

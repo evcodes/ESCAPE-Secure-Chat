@@ -3,6 +3,7 @@
 
 import os, sys, getopt, time
 from netinterface import network_interface
+from encrypt_and_send import encrypt_message
 
 NET_PATH = './'
 OWN_ADDR = 'A'
@@ -45,6 +46,8 @@ while True:
 	msg = input('Type a message: ')
 	dst = input('Type a destination address: ')
 
-	netif.send_msg(dst, msg.encode('utf-8'))
+	enc = encrypt_message(msg, "./" + OWN_ADDR + "/sndstate.txt", "./" + OWN_ADDR + "/rsa_privkey.pem")
+	
+	netif.send_msg(dst, enc)
 
 	if input('Continue? (y/n): ') == 'n': break
