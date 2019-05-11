@@ -63,6 +63,17 @@ pubkey_list_read = open(pubkey_list_address, "r")
 pubkey_list_file = pubkey_list_read.read()
 pubkey_list_read.close()
 
+def save_shared_key(shared_key, pubkey, OWN_ADDR, NET_PATH):
+	addr_dir = NET_PATH + OWN_ADDR + '/shared_key'
+	if not os.path.exists(addr_dir):
+		print('Folder for address ' + addr_dir + ' does not exist. Trying to create it... ', end='')
+		os.mkdir(addr_dir)
+	f=open(addr_dir+"/shared_key.txt", "wb")
+	RSA_cipher = PKCS1_OAEP.new(pubkey)
+	enc_shared_key = RSA_cipher.encrypt(shared_key.encode(encoding='utf_8'))
+	f.write(enc_shared_key)
+
+
 
 pubkey_list = pubkey_list_file.split("user:")
 print(pubkey_list)
@@ -108,7 +119,7 @@ while True:
         p_text = RSA_cipher.decrypt(c_text).decode(encoding = 'utf_8')
         print(p_text)
         if p_text[0] == INITIATOR_ID:
-            print("Decryption verified")
+            save_shared_key(p_text[1:], sign_pub_key, OWN_ADDR,NET_PATH)
             print("Session Established!")
             # save key here
             break
