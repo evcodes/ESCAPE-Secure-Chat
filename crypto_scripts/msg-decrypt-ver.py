@@ -4,7 +4,7 @@ from Crypto.Util import Counter
 from Crypto import Random
 from Crypto.Random import get_random_bytes
 from Crypto.Util.Padding import unpad
-from sign import generate_signature
+import sign
 
 statefile = "rcvstate.txt"
 inputfile = ""
@@ -41,38 +41,21 @@ def decrypt_message():
         return 
     
     # Verfiy the signature
-    sign = ciphertext[4:4+256]
-    print(sign)
-    iv = ciphertext[:AES.block_size]
-    # cipher_text = ciphertext[AES.block_size:]
+    signature = ciphertext[4:4+256]
+    nonce = ciphertext[260:260 + AES.block_size]
+    
+    print(nonce)
+    cipher_text = ciphertext[260+AES.block_size:]
 
     # create AES cipher object
     key,sqn = read_state()
-    cipher = AES.new(key, AES.MODE_CBC, iv)
+    cipher = AES.new(key, AES.MODE_CBC, nonce)
 
     # decrypt ciphertext
     plaintext = cipher.decrypt(cipher_text)
-    plaintext = Padding.unpad(plaintext, AES.block_size)
+    sign.verify_signature(signature,plaintext)
 
-    print(plaintext.decode('utf-8'))
-
-    # write out the plaintext obtained into the output file
-    out = open(outputfile, 'wb')
-    out.write(plaintext)
-    out.close()
-
-
-    # separate the initial value from the encrypted plaintext in the ciphertext
-    iv = ciphertext[:AES.block_size]
-    cipher_text = ciphertext[AES.block_size:]
-
-    # create AES cipher object
-    key = keystring.encode('utf-8')
-    cipher = AES.new(key, AES.MODE_CBC, iv)
-
-    # decrypt ciphertext
-    plaintext = cipher.decrypt(cipher_text)
-    plaintext = Padding.unpad(plaintext, AES.block_size)
+    plaintext = unpad(plaintext, AES.block_size)
 
     print(plaintext.decode('utf-8'))
 
@@ -110,5 +93,3 @@ if len(outputfile) == 0:
     print('Decrypting...\n', end='')
 
 decrypt_message()
-
-    

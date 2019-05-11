@@ -20,10 +20,10 @@ def generate_signature(m):
     sig = signer.sign(h)
     return sig
 
-def verifiy_signature(signature, m):
+def verify_signature(signature, m):
 
     h = SHA256.new()
-    m.decode('utf-8')
+    # m.decode('utf-8')
     h.update(m)
     public_key = False
 
@@ -32,5 +32,6 @@ def verifiy_signature(signature, m):
     
     verifier = PKCS1_v1_5.new(public_key)
     verified = verifier.verify(h, signature)
+    print(type(verified))
     assert verified, 'Signature verification failed'
     print ('Successfully verified message')
