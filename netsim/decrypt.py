@@ -36,7 +36,6 @@ def decrypt_message(msg,statefile,pubkey):
     print(len(nonce))
     cipher_text = msg[260+AES.block_size:]
 
-
     # create AES cipher object
     cipher = AES.new(key, AES.MODE_CBC, nonce)
 
