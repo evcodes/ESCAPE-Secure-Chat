@@ -10,31 +10,31 @@ from Crypto.Random import get_random_bytes
 from netsim.netinterface import network_interface
 
 
-
-
-
 NET_PATH = './'
-# OWN_ADDR = 'C'
-# INITIATOR_ID = 'A'
 pubkey_list_address = 'SETUP/pubkey_list.txt'
 
 try:
-	opts, args = getopt.getopt(sys.argv[1:], shortopts='hi:a:', longopts=['help', 'initiator=', 'addr='])
+	opts, args = getopt.getopt(sys.argv[1:], shortopts='hi:a:p:', longopts=['help', 'initiator=', 'addr=','passphrase:'])
 except getopt.GetoptError:
-	print('Usage: python establish_session_listen.py -i <initiator id> -a <own addr>')
+	print('Usage: python establish_session_listen.py -i <initiator id> -a <own addr> -p <passphrase>')
 	sys.exit(1)
 
 for opt, arg in opts:
-	if opt == '-h' or opt == '--help':
-		print('Usage: python establish_session_listen.py -i <initiator id> -a <own addr>')
-		sys.exit(0)
-	elif opt == '-i' or opt == '--initiator':
-		INITIATOR_ID = arg
-	elif opt == '-a' or opt == '--addr':
-		OWN_ADDR = arg
+    if opt == '-h' or opt == '--help':
+        print('Usage: python establish_session_listen.py -i <initiator id> -a <own addr> -p <passphrase>')
+        sys.exit(0)
+    elif opt == '-i' or opt == '--initiator':
+        INITIATOR_ID = arg
+    elif opt == '-a' or opt == '--addr':
+        OWN_ADDR = arg
+    elif opt == '-p' or opt == '--pass':
+        PASS = arg
 
-if len(opts) != 2:
-    print('Usage: python establish_session_listen.py -i <initiator id> -a <own addr>')
+
+
+
+if len(opts) != 3:
+    print('Usage: python establish_session_listen.py -i <initiator id> -a <own addr> -p <passphrase>')
 
 
 
@@ -52,8 +52,6 @@ if OWN_ADDR not in network_interface.addr_space:
 
 
 
-
-
 #Import private user's key
 priv_key_address = "SETUP/rsa_privkey_"+ OWN_ADDR +".pem"
 privkey_read = open(priv_key_address, "r")
@@ -64,8 +62,6 @@ privkey_read.close()
 pubkey_list_read = open(pubkey_list_address, "r")
 pubkey_list_file = pubkey_list_read.read()
 pubkey_list_read.close()
-
-
 
 
 pubkey_list = pubkey_list_file.split("user:")
@@ -102,7 +98,12 @@ while True:
     verified = verifier.verify(h_signed_text, signature)
     if verified:
         print ("Successfully verified signature!")
-        privkey = RSA.importKey(privkey_file)
+        try:
+            privkey = RSA.importKey(privkey_file, passphrase=PASS)
+        except ValueError:
+            print("Passphrase Wrong!")
+            break
+        privkey = RSA.importKey(privkey_file, passphrase=PASS)
         RSA_cipher = PKCS1_OAEP.new(privkey)
         p_text = RSA_cipher.decrypt(c_text).decode(encoding = 'utf_8')
         print(p_text)

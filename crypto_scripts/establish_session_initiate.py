@@ -40,46 +40,50 @@ privkey_read = open(priv_key_address, "r")
 privkey_file = privkey_read.read()
 privkey_read.close()
 
-sign_priv_key = RSA.importKey(privkey_file)
+try:
+    sign_priv_key = RSA.importKey(privkey_file, passphrase="this_is_A")
 
-timestamp = int(time.time()*1000000)
-timestamp_str = str(timestamp)
-print(timestamp)
+    timestamp = int(time.time()*1000000)
+    timestamp_str = str(timestamp)
+    print(timestamp)
 
-netif = network_interface(NET_PATH, OWN_ADDR)
-print('Main loop started...')
-### Use ISO 11770-3/2 instead 3/3
-for PARTICIPANT in PARTICIPANT_LIST:
-    pubkey_list = pubkey_list_file.split("user:")
-    pubkey_list.remove("")
-    checker = 0
-    for key in pubkey_list:
-        # print(key)
-        if key[0] == PARTICIPANT:
-            checker +=1
-            get_key = key.split("pubkey:")
-            key_str = get_key[1]
-    if checker == 0:
-        print("No such public key string found!")
+    netif = network_interface(NET_PATH, OWN_ADDR)
+    print('Main loop started...')
+    ### Use ISO 11770-3/2 instead 3/3
+    for PARTICIPANT in PARTICIPANT_LIST:
+        pubkey_list = pubkey_list_file.split("user:")
+        pubkey_list.remove("")
+        checker = 0
+        for key in pubkey_list:
+            # print(key)
+            if key[0] == PARTICIPANT:
+                checker +=1
+                get_key = key.split("pubkey:")
+                key_str = get_key[1]
+        if checker == 0:
+            print("No such public key string found!")
 
-    pubkey = RSA.importKey(key_str)
-    p_text = (INITIATOR_ID + str(shared_key)).encode(encoding='utf_8')
-    print(len(shared_key))
-    RSA_cipher = PKCS1_OAEP.new(pubkey)
-    c_text = RSA_cipher.encrypt(p_text)
+        pubkey = RSA.importKey(key_str)
+        p_text = (INITIATOR_ID + str(shared_key)).encode(encoding='utf_8')
+        print(len(shared_key))
+        RSA_cipher = PKCS1_OAEP.new(pubkey)
+        c_text = RSA_cipher.encrypt(p_text)
 
-    p_signed_text = (PARTICIPANT + timestamp_str).encode(encoding='utf_8') + c_text
-    h_signed_text = SHA256.new()
-    h_signed_text.update(p_signed_text)
+        p_signed_text = (PARTICIPANT + timestamp_str).encode(encoding='utf_8') + c_text
+        h_signed_text = SHA256.new()
+        h_signed_text.update(p_signed_text)
 
-    signer = PKCS1_v1_5.new(sign_priv_key)
-    sig = signer.sign(h_signed_text)
+        signer = PKCS1_v1_5.new(sign_priv_key)
+        sig = signer.sign(h_signed_text)
 
-    shared_key_message = timestamp_str.encode(encoding='utf_8') + c_text + sig
-    print(shared_key_message)
-    print(len(shared_key_message))
-    # print(len(timestamp_str.enocde(encoding='utf_8')))
-    print(len(c_text))
-    netif.send_msg(PARTICIPANT, shared_key_message)
-    netif.send_msg(PARTICIPANT, shared_key_message)
-    print("Establish session initiated")
+        shared_key_message = timestamp_str.encode(encoding='utf_8') + c_text + sig
+        print(shared_key_message)
+        print(len(shared_key_message))
+        # print(len(timestamp_str.enocde(encoding='utf_8')))
+        print(len(c_text))
+        netif.send_msg(PARTICIPANT, shared_key_message)
+        netif.send_msg(PARTICIPANT, shared_key_message)
+        print("Establish session initiated")
+
+except ValueError:
+    print("Passphrase Wrong!")
