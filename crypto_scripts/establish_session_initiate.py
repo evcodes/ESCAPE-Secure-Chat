@@ -30,7 +30,7 @@ priv_key_address ='SETUP/rsa_privkey_A.pem'
 NET_PATH = './'
 OWN_ADDR = 'A'
 INITIATOR_ID = OWN_ADDR
-PARTICIPANT_LIST = 'BC'
+PARTICIPANT_LIST = 'ABC'
 
 # random_bytes = urandom(16)
 # token = b64encode(random_bytes).decode('utf-8')
@@ -50,6 +50,20 @@ pubkey_list_read.close()
 privkey_read = open(priv_key_address, "r")
 privkey_file = privkey_read.read()
 privkey_read.close()
+
+
+# def save_shared_key(shared_key, pubkey, OWN_ADDR, NET_PATH):
+# 	addr_dir = NET_PATH + OWN_ADDR + '/shared_key'
+# 	if not os.path.exists(addr_dir):
+# 		print('Folder for address ' + addr_dir + ' does not exist. Trying to create it... ', end='')
+# 		os.mkdir(addr_dir)
+# 	f=open(addr_dir+"/shared_key.txt", "wb")
+# 	RSA_cipher = PKCS1_OAEP.new(pubkey)
+# 	enc_shared_key = RSA_cipher.encrypt(shared_key)
+# 	f.write(enc_shared_key)
+
+
+
 
 try:
     sign_priv_key = RSA.importKey(privkey_file, passphrase="this_is_A")
@@ -71,6 +85,11 @@ try:
                 checker +=1
                 get_key = key.split("pubkey:")
                 key_str = get_key[1]
+            # elif key[0] == INITIATOR_ID:
+            #     get_key = key.split("pubkey:")
+            #     key_str = get_key[1]
+            #     pubkey = RSA.importKey(key_str)
+            #     save_shared_key(shared_key, pubkey, OWN_ADDR, NET_PATH):
         if checker == 0:
             print("No such public key string found!")
 
