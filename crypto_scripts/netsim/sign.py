@@ -10,12 +10,8 @@ def generate_signature(m,privkey):
     # content = m.encode('utf-8')
     h = SHA256.new()
     h.update(m)
-
-    private_key = False
-    with open (privkey, "r") as myfile:
-        private_key = RSA.importKey(myfile.read())
     
-    signer = PKCS1_v1_5.new(private_key)
+    signer = PKCS1_v1_5.new(privkey)
     sig = signer.sign(h)
     return sig
 

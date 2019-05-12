@@ -11,22 +11,18 @@ def verify_sqn(msg_sqn,rcv_state):
     return int(msg_sqn) > rcv_state
     
 def read_state(statefile):
-    # Get decryption key
-    ifile = open(statefile, 'rt')
-    line = ifile.readline()
-    deckey = line[len("deckey: "):len("deckey: ") + 32]
-
 
     #Get sqn number
+    ifile = open(statefile,'r')
     line = ifile.readline()
     rcvsqn = line[len("rcvsqn: "):]
     rcvsqn = int(rcvsqn, base =10)
     ifile.close()
-    return (deckey,rcvsqn)
+    return (rcvsqn)
     
-def decrypt_message(msg,statefile,pubkey):
+def decrypt_message(msg,statefile,sharedkey, pubkey):
     
-    key, rcv = read_state(statefile)
+    rcv = read_state(statefile)
     ## If message number is not greater than the one in our state file, do not decrypt
     
     # Seperate parts of the message
@@ -37,7 +33,7 @@ def decrypt_message(msg,statefile,pubkey):
     cipher_text = msg[260+AES.block_size:]
 
     # create AES cipher object
-    cipher = AES.new(key, AES.MODE_CBC, nonce)
+    cipher = AES.new(sharedkey, AES.MODE_CBC, nonce)
 
     # Verify Sqn number
     if(verify_sqn(msg[0:4],rcv) is False): 

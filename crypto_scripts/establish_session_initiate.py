@@ -9,7 +9,6 @@
 # Decrept
 # Verify the signature
 
-
 import sys, getopt
 import time
 from base64 import b64encode
@@ -42,7 +41,6 @@ print(b64decode(shared_key_str.encode('utf_8')))
 
 # a = str(shared_key, 'utf_8')
 
-
 pubkey_list_read = open(pubkey_list_address, "r")
 pubkey_list_file = pubkey_list_read.read()
 pubkey_list_read.close()
@@ -50,20 +48,6 @@ pubkey_list_read.close()
 privkey_read = open(priv_key_address, "r")
 privkey_file = privkey_read.read()
 privkey_read.close()
-
-
-# def save_shared_key(shared_key, pubkey, OWN_ADDR, NET_PATH):
-# 	addr_dir = NET_PATH + OWN_ADDR + '/shared_key'
-# 	if not os.path.exists(addr_dir):
-# 		print('Folder for address ' + addr_dir + ' does not exist. Trying to create it... ', end='')
-# 		os.mkdir(addr_dir)
-# 	f=open(addr_dir+"/shared_key.txt", "wb")
-# 	RSA_cipher = PKCS1_OAEP.new(pubkey)
-# 	enc_shared_key = RSA_cipher.encrypt(shared_key)
-# 	f.write(enc_shared_key)
-
-
-
 
 try:
     sign_priv_key = RSA.importKey(privkey_file, passphrase="this_is_A")

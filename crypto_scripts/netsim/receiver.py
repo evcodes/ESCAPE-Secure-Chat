@@ -6,7 +6,23 @@ from netinterface import network_interface
 from decrypt import decrypt_message
 
 NET_PATH = './'
-OWN_ADDR = 'B'
+OWN_ADDR = ''
+PARTICIPANT_LIST = 'ABC'
+pubkey_list_address = 'SETUP/pubkey_list.txt'
+
+def get_sender(statefile):
+	ifile = open(statefile,'r')
+	line = ifile.readline()
+	max_sqn = line[len("rcvsqn: "):]
+
+	ifile.close()
+	print (max_sqn)
+
+	directory = os.listdir("./" + OWN_ADDR+"/IN/")
+
+	for f in directory:
+		if f[0:4] == max_sqn:
+			return f[6:7]
 
 # ------------       
 # main program
@@ -41,13 +57,24 @@ if OWN_ADDR not in network_interface.addr_space:
 
 # main loop
 netif = network_interface(NET_PATH, OWN_ADDR)
+
 print('Main loop started...')
 while True:
+
+	src = get_sender('./'+ OWN_ADDR+"/rcvstate.txt")
+
+	# lookup public key and verify
+	pubkey_read = open(pubkey_list_address, 'r')
+	pubkey = pubkey_read.read()
+	pubkey_read.close()
+
+	for PARTICIPANT in PARTICIPANT_LIST:
+		pubkey_list = pubkey.split("user:")
 # Calling receive_msg() in non-blocking mode ... 
 	status, msg = netif.receive_msg(blocking=False)
 
 	if status:
-		msg = decrypt_message(msg, "./" + OWN_ADDR + "/rcvstate.txt", "./" + OWN_ADDR + "/rsa_pubkey.pem")    
+		# msg = decrypt_message(msg, "./" + OWN_ADDR + "/rcvstate.txt", "./" + OWN_ADDR + "/rsa_pubkey.pem")    
 		print(msg)      # if status is True, then a message was returned in msg
 	else: time.sleep(2)        # otherwise msg is empty
 

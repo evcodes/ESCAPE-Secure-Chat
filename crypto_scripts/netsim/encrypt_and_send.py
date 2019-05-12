@@ -28,10 +28,9 @@ def read_state(statefile):
     return (sndsqn)
 
 def update_state(sndsqn,statefile):
-
     state = "sndsqn: " + str(sndsqn + 1)
     ofile = open(statefile, 'wt')
-    ofile.write(enckey + state)
+    ofile.write(state)
     ofile.close()
     
 def generate_nonce():
@@ -43,23 +42,25 @@ nonce = generate_nonce()
 # Ensures that there are 4 digits so we have some kind of standard length of sequence numbers
 # Reset after we reach 9999 messages 
 def pad_sqn(sqn):
-    print("{:04d}".format(sqn))
     return ("{:04d}".format(sqn))
 
-def encrypt_message(m,statefile,privkey):
+def encrypt_message(m,statefile,shared_key,privkey):
 
     plaintext = m.encode('utf-8')
     sqn = read_state(statefile)
 
-    key = b'0123456789abcdef'
-    cipher = AES.new(key, AES.MODE_CBC, nonce)
+    cipher = AES.new(shared_key, AES.MODE_CBC, nonce)
     content = pad(plaintext, AES.block_size)
     ciphertext = cipher.encrypt(content)
-    sign = generate_signature(ciphertext,privkey)
     
+    sign_content = str(sqn).encode('utf-8')+nonce+ciphertext
+
+    sign = generate_signature(sign_content,privkey)
     update_state(sqn,statefile)
     sqn = pad_sqn(sqn)
     sqn = str(sqn).encode('utf-8')
+
+    
     
     return (sqn + sign + nonce + ciphertext)
     

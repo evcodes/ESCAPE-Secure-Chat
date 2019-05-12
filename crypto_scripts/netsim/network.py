@@ -22,9 +22,8 @@ def read_msg(src):
 	
 	last_read[src] += 1
 	return msg, dsts
-
   
-def write_msg(dst, msg):
+def write_msg(src,dst, msg):
 
 	in_dir = NET_PATH + dst + '/IN'
 	msgs = sorted(os.listdir(in_dir))
@@ -33,7 +32,7 @@ def write_msg(dst, msg):
 		last_msg = msgs[-1]
 		next_msg = (int.from_bytes(bytes.fromhex(last_msg), byteorder='big') + 1).to_bytes(2, byteorder='big').hex()
 	else:
-		next_msg = '0000'
+		next_msg = '0000--'+src
 	
 	with open(in_dir + '/' + next_msg, 'wb') as f: f.write(msg)
 
@@ -128,4 +127,4 @@ while True:
 			if dsts == '+': dsts = ADDR_SPACE					# handle broadcast address +
 			for dst in dsts:									# for all destinations of the message...
 				if dst in ADDR_SPACE:							# destination must be a valid address
-					write_msg(dst, msg)                         # write incoming message
+					write_msg(src,dst, msg)                         # write incoming message
