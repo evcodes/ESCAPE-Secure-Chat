@@ -6,7 +6,7 @@
 # Send the message to the receiver
 
 # Receiver
-# Decrypt
+# Decrept
 # Verify the signature
 
 
@@ -20,6 +20,9 @@ from Crypto.Hash import SHA256
 from Crypto.PublicKey import RSA
 from Crypto.Random import get_random_bytes
 from netsim.netinterface import network_interface
+from base64 import b64encode
+from base64 import b64decode
+from os import urandom
 
 pubkey_list_address = 'SETUP/pubkey_list.txt'
 priv_key_address ='SETUP/rsa_privkey_A.pem'
@@ -29,7 +32,16 @@ OWN_ADDR = 'A'
 INITIATOR_ID = OWN_ADDR
 PARTICIPANT_LIST = 'BC'
 
-shared_key = get_random_bytes(16)
+# random_bytes = urandom(16)
+# token = b64encode(random_bytes).decode('utf-8')
+# print(token)
+shared_key = urandom(16)
+
+shared_key_str = b64encode(shared_key).decode('utf-8')
+print(b64decode(shared_key_str.encode('utf_8')))
+
+# a = str(shared_key, 'utf_8')
+
 
 pubkey_list_read = open(pubkey_list_address, "r")
 pubkey_list_file = pubkey_list_read.read()
@@ -44,11 +56,11 @@ try:
 
     timestamp = int(time.time()*1000000)
     timestamp_str = str(timestamp)
+    print(timestamp)
 
     netif = network_interface(NET_PATH, OWN_ADDR)
     print('Main loop started...')
-
-    ### Use ISO 11770-3/2
+    ### Use ISO 11770-3/2 instead 3/3
     for PARTICIPANT in PARTICIPANT_LIST:
         pubkey_list = pubkey_list_file.split("user:")
         pubkey_list.remove("")
@@ -63,11 +75,12 @@ try:
             print("No such public key string found!")
 
         pubkey = RSA.importKey(key_str)
-        p_text = (INITIATOR_ID + str(shared_key)).encode(encoding='utf_8')
+        p_text = (INITIATOR_ID + shared_key_str).encode(encoding='utf_8')
+        print(len(p_text))
+        # print(shared_key.decode(encoding = 'utf_8'))
         RSA_cipher = PKCS1_OAEP.new(pubkey)
         c_text = RSA_cipher.encrypt(p_text)
 
-        # Signed plaintext
         p_signed_text = (PARTICIPANT + timestamp_str).encode(encoding='utf_8') + c_text
         h_signed_text = SHA256.new()
         h_signed_text.update(p_signed_text)
@@ -76,6 +89,11 @@ try:
         sig = signer.sign(h_signed_text)
 
         shared_key_message = timestamp_str.encode(encoding='utf_8') + c_text + sig
+        print(shared_key_message)
+        print(len(shared_key_message))
+        # print(len(timestamp_str.enocde(encoding='utf_8')))
+        print(len(c_text))
+        netif.send_msg(PARTICIPANT, shared_key_message)
         netif.send_msg(PARTICIPANT, shared_key_message)
         print("Establish session initiated")
 
