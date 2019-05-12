@@ -1,2 +1,0 @@
-deckey: 0123456789abcdef0123456789abcdef
-rcvsqn: 0

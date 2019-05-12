@@ -1,2 +1,0 @@
-enckey: 0123456789abcdef0123456789abcdef
-sndsqn: 0

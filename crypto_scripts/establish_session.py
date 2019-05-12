@@ -6,9 +6,8 @@
 # Send the message to the receiver
 
 # Receiver
-# Decrept
+# Decrypt
 # Verify the signature
-
 
 import sys, getopt
 import time
