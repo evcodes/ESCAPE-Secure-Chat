@@ -3,6 +3,7 @@ This is a secure chat application.
 
 To generate the key for every user 
 1. python gen_key.py 
+
 This will generate everyone's private key in a password protected mode and a public key list in the SETUP directory.
 
 To establish the session:
