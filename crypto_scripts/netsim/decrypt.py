@@ -25,8 +25,6 @@ def read_state(statefile):
     return (rcvsqn)
     
 def decrypt_message(msg,statefile,sharedkey, pubkey):
-    
-    print(len(sharedkey))
 
     rcv = read_state(statefile)
     ## If message number is not greater than the one in our state file, do not decrypt
@@ -41,13 +39,16 @@ def decrypt_message(msg,statefile,sharedkey, pubkey):
     if(verify_sqn(sqn,rcv) is False): 
         return ("Sequence number verification failed")
 
+
     content = sqn + nonce + cipher_text
+    
     is_verified = verify_signature(content, signature, pubkey)
 
     if  (is_verified == False):
+        print("Verification failed")
         return 
 
-    # decrypt the shared sym key
+    print("Successful verification")
 
     # create AES cipher object
     cipher = AES.new(sharedkey, AES.MODE_CBC, nonce)
@@ -55,5 +56,6 @@ def decrypt_message(msg,statefile,sharedkey, pubkey):
     # decrypt ciphertext
     plaintext = cipher.decrypt(cipher_text)
 
-    plaintext = unpad(plaintext, AES.block_size)
-    return(plaintext.decode('utf-8'))
+    # plaintext = unpad(plaintext, AES.block_size)
+    print("decrypyting...")
+    return(plaintext)

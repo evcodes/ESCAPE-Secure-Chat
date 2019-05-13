@@ -5,6 +5,7 @@ from Crypto import Random
 from Crypto.Random import get_random_bytes
 from Crypto.Util.Padding import pad
 from sign import generate_signature
+from util import *
 
 
 '''
@@ -19,7 +20,6 @@ Steps for sending a message
 
 def read_state(statefile):  
     ifile = open(statefile, 'rt')
-
     # Get sqn num
     line = ifile.readline()
     sndsqn = (line[len("sndsqn: "):])
@@ -28,7 +28,7 @@ def read_state(statefile):
     return (sndsqn)
 
 def update_state(sndsqn,statefile):
-    state = "sndsqn: " + str(sndsqn + 1)
+    state = "sndsqn: " + str(pad_num(sndsqn + 1))
     ofile = open(statefile, 'wt')
     ofile.write(state)
     ofile.close()
@@ -41,8 +41,7 @@ nonce = generate_nonce()
 
 # Ensures that there are 4 digits so we have some kind of standard length of sequence numbers
 # Reset after we reach 9999 messages 
-def pad_sqn(sqn):
-    return ("{:04d}".format(sqn))
+
 
 def encrypt_message(m,statefile,shared_key,privkey):
 
@@ -52,12 +51,21 @@ def encrypt_message(m,statefile,shared_key,privkey):
     cipher = AES.new(shared_key, AES.MODE_CBC, nonce)
     content = pad(plaintext, AES.block_size)
     ciphertext = cipher.encrypt(content)
+
+    sqn_num = str(pad_num(sqn)).encode('utf-8')
+
+    print("sqn: ",sqn_num)
+    print("nonce: ", nonce)
+    print("ciphr: ", ciphertext)
+
+    sign_content = sqn_num+nonce+ciphertext
     
-    sign_content = str(sqn).encode('utf-8')+nonce+ciphertext
 
     sign = generate_signature(sign_content,privkey)
+    print(sign)
+    
     update_state(sqn,statefile)
-    sqn = pad_sqn(sqn)
+    sqn = pad_num(sqn)
     sqn = str(sqn).encode('utf-8')
 
     print(len(sign))

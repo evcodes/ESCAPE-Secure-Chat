@@ -33,10 +33,8 @@ for opt, arg in opts:
     elif opt == '-p' or opt == '--pass':
         PASS = arg
 
-
 if len(opts) != 3:
     print('Usage: python establish_session_listen.py -i <initiator id> -a <own addr> -p <passphrase>')
-
 
 if (NET_PATH[-1] != '/') and (NET_PATH[-1] != '\\'): NET_PATH += '/'
 

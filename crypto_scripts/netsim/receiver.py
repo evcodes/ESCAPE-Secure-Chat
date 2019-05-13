@@ -37,10 +37,13 @@ def get_sender(statefile):
 
 	ifile.close()
 
+	print(max_sqn)
+
 	directory = os.listdir("./" + OWN_ADDR+"/IN/")
 
 	for f in directory:
 		if f[0:4] == max_sqn:
+			print(f)
 			return f[6:7]
 
 # ------------       
@@ -50,12 +53,12 @@ def get_sender(statefile):
 try:
 	opts, args = getopt.getopt(sys.argv[1:], shortopts='hp:a:k:', longopts=['help', 'path=', 'addr='])
 except getopt.GetoptError:
-	print('Usage: python receiver.py -p <network path> -a <own addr>')
+	print('Usage: python receiver.py -p <network path> -a <own addr> -k <unique pw>')
 	sys.exit(1)
 
 for opt, arg in opts:
 	if opt == '-h' or opt == '--help':
-		print('Usage: python receiver.py -p <network path> -a <own addr>')
+		print('Usage: python receiver.py -p <network path> -a <own addr> -k <unique pw>')
 		sys.exit(0)
 	elif opt == '-p' or opt == '--path':
 		NET_PATH = arg
@@ -106,23 +109,30 @@ while True:
 	print(sym_key)
 	shared_key = RSA_cipher.decrypt(sym_key)
 
+	print("Source",src)
 	sender_pub_key = read_public_key(src)
 
 
 # Calling receive_msg() in non-blocking mode ... 
 	status, msg = netif.receive_msg(blocking=False)
-	print(status)
 
 	if status:
 		# msg = decrypt_message(msg, "./" + OWN_ADDR + "/rcvstate.txt", "./" + OWN_ADDR + "/rsa_pubkey.pem")    
-		print(msg.decode('utf-8'))      # if status is True, then a message was returned in msg
+		print(decrypt_message(msg, state, shared_key, sender_pub_key))      # if status is True, then a message was returned in msg
 	else: time.sleep(2)        # otherwise msg is empty
 
 # Calling receive_msg() in blocking mode ...
 	status, msg = netif.receive_msg(blocking=True)      # when returns, status is True and msg contains a message 
-	print(decrypt_message(msg, state, shared_key, sender_pub_key))
+	print("msg", decrypt_message(msg, state, shared_key, sender_pub_key).decode('utf-8'))
+	# print(decrypt_message)
+	# print("msg: ",msg)
+	# print("state: ",state)
+	# print("shared_key: ", shared_key)
+	# print("sender_pub_key: ", sender_pub_key)
 	
-	# print(decrypt_message(msg, state, shared_key, pub_key_str))
+	# print(decrypt_message(msg, state, shared_key, sender_pub_key))
+	
+	
 	# print(msg[0:4])# Sqn number
 	# print(msg[4:260]) # signature
 	# print(msg[260:260+AES.block_size]) # nonce
