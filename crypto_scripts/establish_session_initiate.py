@@ -64,7 +64,6 @@ try:
         pubkey_list.remove("")
         checker = 0
         for key in pubkey_list:
-            # print(key)
             if key[0] == PARTICIPANT:
                 checker +=1
                 get_key = key.split("pubkey:")

@@ -78,9 +78,6 @@ while True:
 	f.close()
 
 	shared_key = RSA_cipher.decrypt(sym_key)
-	print(type(shared_key))
-
-	print(len(shared_key))
 
 	enc = encrypt_message(msg, "./" + OWN_ADDR + "/sndstate.txt", shared_key, key)
 	

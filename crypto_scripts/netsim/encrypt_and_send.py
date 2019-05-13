@@ -60,6 +60,8 @@ def encrypt_message(m,statefile,shared_key,privkey):
     sqn = pad_sqn(sqn)
     sqn = str(sqn).encode('utf-8')
 
+    print(len(sign))
+
     
     
     return (sqn + sign + nonce + ciphertext)

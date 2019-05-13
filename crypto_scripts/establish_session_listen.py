@@ -8,12 +8,13 @@ from Crypto.Hash import SHA256
 from Crypto.PublicKey import RSA
 from Crypto.Random import get_random_bytes
 from netsim.netinterface import network_interface
+
 from base64 import b64encode
 from base64 import b64decode
 
-
 NET_PATH = './'
 pubkey_list_address = 'SETUP/pubkey_list.txt'
+OWN_ADDR =''
 
 try:
 	opts, args = getopt.getopt(sys.argv[1:], shortopts='hi:a:p:', longopts=['help', 'initiator=', 'addr=','passphrase:'])
@@ -33,11 +34,8 @@ for opt, arg in opts:
         PASS = arg
 
 
-
-
 if len(opts) != 3:
     print('Usage: python establish_session_listen.py -i <initiator id> -a <own addr> -p <passphrase>')
-
 
 
 if (NET_PATH[-1] != '/') and (NET_PATH[-1] != '\\'): NET_PATH += '/'
@@ -51,8 +49,6 @@ if len(OWN_ADDR) > 1: OWN_ADDR = OWN_ADDR[0]
 if OWN_ADDR not in network_interface.addr_space:
 	print('Error: Invalid address ' + OWN_ADDR)
 	sys.exit(1)
-
-
 
 #Import private user's key
 priv_key_address = "SETUP/rsa_privkey_"+ OWN_ADDR +".pem"
@@ -75,10 +71,8 @@ def save_shared_key(shared_key, pubkey, OWN_ADDR, NET_PATH):
 	enc_shared_key = RSA_cipher.encrypt(shared_key)
 	f.write(enc_shared_key)
 
-
-
 pubkey_list = pubkey_list_file.split("user:")
-print(pubkey_list)
+
 pubkey_list.remove("")
 checker = 0
 for key in pubkey_list:
@@ -87,10 +81,16 @@ for key in pubkey_list:
         get_key = key.split("pubkey:")
         key_str = get_key[1]
         print(key_str)
+    if key[0] == OWN_ADDR:
+        checker+=1
+        get_own_key= key.split("pubkey:")
+        own_key_str = get_own_key[1]
+
 if checker == 0:
     print("No such public key string found!")
 else:
     sign_pub_key = RSA.importKey(key_str)
+    own_pub_key = RSA.importKey(own_key_str)
 
 netif = network_interface(NET_PATH, OWN_ADDR)
 print('Main loop started...')
@@ -116,12 +116,12 @@ while True:
         except ValueError:
             print("Passphrase Wrong!")
             break
-        privkey = RSA.importKey(privkey_file, passphrase=PASS)
+        # privkey = RSA.importKey(privkey_file, passphrase=PASS)
         RSA_cipher = PKCS1_OAEP.new(privkey)
         p_text = RSA_cipher.decrypt(c_text).decode(encoding = 'utf_8')
         # print(len(b64decode(p_text[1:].encode('utf_8'))))
         if p_text[0] == INITIATOR_ID:
-            save_shared_key(b64decode(p_text[1:].encode('utf_8')), sign_pub_key, OWN_ADDR,NET_PATH)
+            save_shared_key(b64decode(p_text[1:].encode('utf_8')), own_pub_key, OWN_ADDR,NET_PATH)
             print("Session Established!")
             break
         else:

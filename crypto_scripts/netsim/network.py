@@ -4,7 +4,7 @@
 import os, sys, getopt, time
 
 NET_PATH = './'
-ADDR_SPACE = 'ABC'
+ADDR_SPACE = ''
 CLEAN = False
 TIMEOUT = 0.500  # 500 millisec
 
@@ -30,11 +30,11 @@ def write_msg(src,dst, msg):
 
 	if len(msgs) > 0:
 		last_msg = msgs[-1]
-		next_msg = (int.from_bytes(bytes.fromhex(last_msg), byteorder='big') + 1).to_bytes(2, byteorder='big').hex()
+		next_msg = (int.from_bytes(bytes.fromhex(last_msg[0:4]), byteorder='big') + 1).to_bytes(2, byteorder='big').hex()
 	else:
-		next_msg = '0000--'+src
+		next_msg = '0000'
 	
-	with open(in_dir + '/' + next_msg, 'wb') as f: f.write(msg)
+	with open(in_dir + '/' + next_msg+ "--" + src, 'wb') as f: f.write(msg)
 
 	return
 
@@ -65,6 +65,10 @@ for opt, arg in opts:
 
 ADDR_SPACE = ''.join(sorted(set(ADDR_SPACE)))
 
+if  (len(NET_PATH) <1):
+	print( "Error: Network path is missing!")
+	sys.exit(1)
+	
 if len(ADDR_SPACE) < 2:
 	print('Error: Address space must contain at least 2 addresses.')
 	sys.exit(1)
