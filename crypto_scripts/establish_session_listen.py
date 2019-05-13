@@ -62,7 +62,7 @@ pubkey_list_read.close()
 def save_shared_key(shared_key, pubkey, OWN_ADDR, NET_PATH):
 	addr_dir = NET_PATH + OWN_ADDR + '/shared_key'
 	if not os.path.exists(addr_dir):
-		print('Folder for address ' + addr_dir + ' does not exist. Trying to create it... ', end='')
+		print('Folder for address ' + addr_dir + ' does not exist. Trying to create it... ')
 		os.mkdir(addr_dir)
 	f=open(addr_dir+"/shared_key.txt", "wb")
 	RSA_cipher = PKCS1_OAEP.new(pubkey)
@@ -78,7 +78,7 @@ for key in pubkey_list:
         checker+=1
         get_key = key.split("pubkey:")
         key_str = get_key[1]
-        print(key_str)
+
     if key[0] == OWN_ADDR:
         checker+=1
         get_own_key= key.split("pubkey:")
@@ -98,9 +98,6 @@ while True:
     timestamp = shared_key_message[:16]
     c_text = shared_key_message[16:272]
     signature = shared_key_message[272:]
-    print(timestamp)
-    print(c_text)
-    print(signature)
 
     p_signed_text = OWN_ADDR.encode(encoding='utf_8')+ timestamp + c_text
     h_signed_text = SHA256.new()

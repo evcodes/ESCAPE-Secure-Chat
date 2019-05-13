@@ -2,7 +2,6 @@ from Crypto.PublicKey import RSA
 from Crypto.Hash import SHA256
 from Crypto.Signature import PKCS1_v1_5
 
-
 #given n -> pad with sufficient 0's to have 4 digis
 def pad_num(n):
     return ("{:04d}".format(n))
@@ -21,7 +20,6 @@ def read_priv_key(OWN_ADDR, pw):
     return p_key
 
 def read_public_key(ADDR):
-
     '''
     Split up the directory and traverse the list of users
     when you find the user, import the key and return it.

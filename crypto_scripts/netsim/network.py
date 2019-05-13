@@ -2,6 +2,7 @@
 #network.py
 
 import os, sys, getopt, time
+from util import pad_num
 
 NET_PATH = './'
 ADDR_SPACE = ''
@@ -100,19 +101,33 @@ for addr in ADDR_SPACE:
 		os.mkdir(addr_dir + '/IN')
 		os.mkdir(addr_dir + '/OUT')
 		f=open(addr_dir+"/sndstate.txt", "a+")
-		f.write("sndsqn: 0")
+		f.write("sndsqn: " + pad_num(0))
 		f=open(addr_dir+"/rcvstate.txt", "a+")
-		f.write("rcvsqn: 0")
+		f.write("rcvsqn: "+ pad_num(0))
 		print('Done.')
 
 # if program was called with --clean, perform clean-up here
 # go through the addr folders and delete messages
 if CLEAN:
 	for addr in ADDR_SPACE:
+		print(addr)
+		os.remove(addr+"/sndstate.txt")
+		f=open(addr+"/sndstate.txt", "a+")
+		f.write("sndsqn: " + pad_num(0))
+		f.close()
+
+		os.remove(addr+"/rcvstate.txt")
+		f=open(addr+"/rcvstate.txt", "a+")
+		f.write("rcvsqn: "+ pad_num(0))
+		f.close()
+
 		in_dir = NET_PATH + addr + '/IN'
 		for f in os.listdir(in_dir): os.remove(in_dir + '/' + f)
+		
 		out_dir = NET_PATH + addr + '/OUT'
 		for f in os.listdir(out_dir): os.remove(out_dir + '/' + f)
+		
+		
         
 # initialize state (needed for tracking last read messages from OUT dirs)
 last_read = {}		

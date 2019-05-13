@@ -19,14 +19,28 @@ from Crypto.Hash import SHA256
 from Crypto.PublicKey import RSA
 from Crypto.Random import get_random_bytes
 
+INITIATOR_ID = ''
+PARTICIPANT_LIST = ''
+
+try:
+    opts, args = getopt.getopt(sys.argv[1:], shortopts='ha:l:')
+except getopt.GetoptError:
+    print('Usage: python establish_session.py -a <initiator> -l <user_list>')
+    sys.exit(1)
+
+for opt, arg in opts:
+    if opt == '-h' or opt == '--help':
+        print('Usage: python establish_session.py -a <initiator> -l <user_list>')
+        sys.exit(0)
+    elif opt == '-a':
+        INITIATOR_ID = arg
+    elif opt == '-l':
+        PARTICIPANT_LIST = arg
+
 pubkey_list_address = 'SETUP/pubkey_list.txt'
 priv_key_address ='SETUP/rsa_privkey_A.pem'
 
-INITIATOR_ID = 'A'
-PARTICIPANT_LIST = 'BC'
-
 shared_key = get_random_bytes(16)
-print(shared_key)
 
 pubkey_list_read = open(pubkey_list_address, "r")
 pubkey_list_file = pubkey_list_read.read()
@@ -38,20 +52,15 @@ sign_priv_key = RSA.importKey(privkey_file)
 
 timestamp = int(time.time()*1000000)
 timestamp_str = str(timestamp)
-print(timestamp)
-
 
 ### Use ISO 11770-3/2 instead 3/3
 for PARTICIPANT in PARTICIPANT_LIST:
     pubkey_list = pubkey_list_file.split("user:")
-    print(pubkey_list)
     pubkey_list.pop(0)
     for key in pubkey_list:
-        # print(key)
         if key[0] == PARTICIPANT:
             get_key = key.split("pubkey:")
             key_str = get_key[1]
-            print(key_str)
 
     pubkey = RSA.importKey(key_str)
     p_text = INITIATOR_ID.encode(encoding='utf_8') + shared_key
@@ -65,5 +74,4 @@ for PARTICIPANT in PARTICIPANT_LIST:
     signer = PKCS1_v1_5.new(sign_priv_key)
     sig = signer.sign(h_signed_text)
 
-    key_message = timestamp_str.encode(encoding='utf_8') + c_text + sig
-    print(key_message)
+    key_message = timestamp_str.encode(encoding='utf_8') + c_text + sig		

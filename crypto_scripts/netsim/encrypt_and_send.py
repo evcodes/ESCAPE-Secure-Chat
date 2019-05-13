@@ -3,13 +3,13 @@ from Crypto.Cipher import AES
 from Crypto.Util import Counter
 from Crypto import Random
 from Crypto.Random import get_random_bytes
-from Crypto.Util.Padding import pad
+from Crypto.Util import Padding
 from sign import generate_signature
+from base64 import b64encode,b64decode
 from util import *
 
-
 '''
-Steps for sending a message
+ALGO for encrypting a message
     1. Generate nonce and use as IV for CBC [x]
     2. Used private key that is shared amongst members of chat to encrypt the message
     3. Find out the sequence number in the user's state file and increment the counter by 1
@@ -37,40 +37,30 @@ def generate_nonce():
     nonce = get_random_bytes(AES.block_size)
     return nonce
 
-nonce = generate_nonce()
-
 # Ensures that there are 4 digits so we have some kind of standard length of sequence numbers
 # Reset after we reach 9999 messages 
-
 
 def encrypt_message(m,statefile,shared_key,privkey):
 
     plaintext = m.encode('utf-8')
     sqn = read_state(statefile)
+    nonce = generate_nonce()
 
     cipher = AES.new(shared_key, AES.MODE_CBC, nonce)
-    content = pad(plaintext, AES.block_size)
-    ciphertext = cipher.encrypt(content)
+    plaintext = Padding.pad(plaintext, AES.block_size, style = 'pkcs7')
+
+    # dec_cipher = AES.new(shared_key, AES.MODE_CBC, nonce)
+    ciphertext = cipher.encrypt(plaintext)
 
     sqn_num = str(pad_num(sqn)).encode('utf-8')
 
-    print("sqn: ",sqn_num)
-    print("nonce: ", nonce)
-    print("ciphr: ", ciphertext)
-
     sign_content = sqn_num+nonce+ciphertext
-    
-
     sign = generate_signature(sign_content,privkey)
-    print(sign)
-    
+
     update_state(sqn,statefile)
     sqn = pad_num(sqn)
     sqn = str(sqn).encode('utf-8')
 
-    print(len(sign))
-
-    
-    
+    # This is the setup of our file
     return (sqn + sign + nonce + ciphertext)
     

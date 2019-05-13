@@ -1,11 +1,26 @@
 from Crypto.Cipher import AES
 from Crypto.Random import get_random_bytes
 from Crypto.PublicKey import RSA
+import sys
+import getopt
 import os
 
 # Generate the RSA key for every user
+USER_LIST = ''
 
-USER_LIST = 'ABC'
+try:
+	opts, args = getopt.getopt(sys.argv[1:], shortopts='l:', longopts=['help','passphrase:'])
+except getopt.GetoptError:
+	print('Usage: python gen_key.py -l <user_list>')
+	sys.exit(1)
+
+for opt, arg in opts:
+    if opt == '-h' or opt == '--help':
+        print('Usage: python gen_key.py -l <user_list>')
+        sys.exit(0)
+    elif opt == '-l':
+        USER_LIST = arg
+
 
 '''
 Generate an RSA keypair with an exponent of 65537 in PEM format
@@ -14,8 +29,6 @@ Return private key and public key
 '''
 
 def generate_RSA(USER, password):
-
-
     new_key = RSA.generate(bits=2048, e=65537)
     public_key = new_key.publickey().exportKey("PEM")
     private_key = new_key.exportKey(passphrase=password)
@@ -30,8 +43,8 @@ def generate_RSA(USER, password):
     file_out_pub.close
     return private_key, public_key
 
-if os.stat("pubkey_list.txt").st_size != 0:
-    open('pubkey_list.txt', 'w').close()
+if os.stat("./SETUP/pubkey_list.txt").st_size != 0:
+    open('./SETUP/pubkey_list.txt', 'w').close()
 
 for USER in USER_LIST:
     password = ''

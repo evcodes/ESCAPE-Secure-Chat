@@ -5,9 +5,8 @@ from Crypto.Signature import PKCS1_v1_5
 from Crypto.Hash import SHA256
 from Crypto.PublicKey import RSA
 
-
 def generate_signature(m,privkey):
-    # content = m.encode('utf-8')
+
     h = SHA256.new()
     h.update(m)
     

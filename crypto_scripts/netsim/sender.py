@@ -30,7 +30,6 @@ for opt, arg in opts:
 	elif opt == '-a' or opt == '--addr':
 		OWN_ADDR = arg
 	elif opt == '-k' or opt == '--pass':
-
 		password = arg
 
 if (NET_PATH[-1] != '/') and (NET_PATH[-1] != '\\'): NET_PATH += '/'
@@ -47,10 +46,11 @@ if OWN_ADDR not in network_interface.addr_space:
 
 # main loop
 netif = network_interface(NET_PATH, OWN_ADDR)
+
 print('Main loop started...')
 while True:
 	msg = input('Type a message: ')
-	dst = input('Type a destination address: ')
+	dst = '+'
 	path = "./" + OWN_ADDR + "/shared_key"
 
 	# To make this work we need to request a password before every message is sent. This 
@@ -61,7 +61,6 @@ while True:
 	privkey_file = "SETUP/rsa_privkey_" + OWN_ADDR + ".pem"
 
 	# Read shared key file and decrypt
-	
 	try:
 		f = open(privkey_file, 'rb')
 		# Use this for signing
@@ -78,9 +77,7 @@ while True:
 	f.close()
 
 	shared_key = RSA_cipher.decrypt(sym_key)
-
 	enc = encrypt_message(msg, "./" + OWN_ADDR + "/sndstate.txt", shared_key, key)
-	
 	netif.send_msg(dst, enc)
 
 	if input('Continue? (y/n): ') == 'n': 
