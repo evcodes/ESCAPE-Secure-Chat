@@ -27,21 +27,15 @@ PARTICIPANT_LIST = ''
 pubkey_list_address = 'SETUP/pubkey_list.txt'
 PASS= ''
 
-def clean():
-	print("cleaning....")
-	
-
 def get_sender(statefile):
 	ifile = open(statefile,'r')
 	line = ifile.readline()
 	max_sqn = line[len("sqn: "):]
 	ifile.close()
-
 	directory = os.listdir("./" + OWN_ADDR+"/IN/")
 
 	for f in directory:
 		if f[0:4] == max_sqn:
-			print(f)
 			return f[6:7]
 
 # ------------       
@@ -137,9 +131,7 @@ while True:
 	f.close()
 	
 	state = "./"+ OWN_ADDR+"/state.txt"
-	print(state)
 	src = get_sender(state)
-	print(src)
 	
 	ifIncreaseSeq = (src != OWN_ADDR)
 

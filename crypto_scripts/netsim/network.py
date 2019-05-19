@@ -26,7 +26,6 @@ def read_msg(src):
 
 def clean(addr_space):
 	for addr in addr_space:
-		print(addr)
 		os.remove(addr+"/state.txt")
 		f=open(addr+"/state.txt", "a+")
 		f.write("sqn: " + pad_num(0))
@@ -130,7 +129,6 @@ for addr in ADDR_SPACE:
 # go through the addr folders and delete messages
 if CLEAN:
 	for addr in ADDR_SPACE:
-		print(addr)
 		os.remove(addr+"/state.txt")
 		f=open(addr+"/state.txt", "a+")
 		f.write("sqn: " + pad_num(0))
