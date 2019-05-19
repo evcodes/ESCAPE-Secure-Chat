@@ -6,6 +6,8 @@ from netinterface import network_interface
 from encrypt_and_send import encrypt_message
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
+# import network
+from util import pad_num
 
 NET_PATH = './'
 OWN_ADDR = ''
@@ -77,8 +79,24 @@ while True:
 	f.close()
 
 	shared_key = RSA_cipher.decrypt(sym_key)
-	enc = encrypt_message(msg, "./" + OWN_ADDR + "/sndstate.txt", shared_key, key)
+	enc = encrypt_message(msg, "./" + OWN_ADDR + "/state.txt", shared_key, key)
 	netif.send_msg(dst, enc)
 
-	if input('Continue? (y/n): ') == 'n': 
-		break
+	if input('Continue? (y/n): ') == 'n':
+		for addr in 'ABC':
+			os.remove(addr+"/state.txt")
+
+			os.remove(addr+"/shared_key/shared_key.txt")
+			
+			f=open(addr+"/state.txt", "a+")
+			f.write("sqn: " + pad_num(0))
+			f.close()
+
+			in_dir = NET_PATH + addr + '/IN'
+			for f in os.listdir(in_dir): os.remove(in_dir + '/' + f)
+		
+			out_dir = NET_PATH + addr + '/OUT'
+			for f in os.listdir(out_dir): os.remove(out_dir + '/' + f)
+		
+
+		os.system('killall -SIGKILL Terminal')

@@ -23,6 +23,21 @@ def read_msg(src):
 	
 	last_read[src] += 1
 	return msg, dsts
+
+def clean(addr_space):
+	for addr in addr_space:
+		print(addr)
+		os.remove(addr+"/state.txt")
+		f=open(addr+"/state.txt", "a+")
+		f.write("sqn: " + pad_num(0))
+		f.close()
+
+		in_dir = NET_PATH + addr + '/IN'
+		for f in os.listdir(in_dir): os.remove(in_dir + '/' + f)
+		
+		out_dir = NET_PATH + addr + '/OUT'
+		for f in os.listdir(out_dir): os.remove(out_dir + '/' + f)
+		
   
 def write_msg(src,dst, msg):
 
@@ -107,10 +122,8 @@ for addr in ADDR_SPACE:
 		os.mkdir(addr_dir)
 		os.mkdir(addr_dir + '/IN')
 		os.mkdir(addr_dir + '/OUT')
-		f=open(addr_dir+"/sndstate.txt", "a+")
-		f.write("sndsqn: " + pad_num(0))
-		f=open(addr_dir+"/rcvstate.txt", "a+")
-		f.write("rcvsqn: "+ pad_num(0))
+		f=open(addr_dir+"/state.txt", "a+")
+		f.write("sqn: " + pad_num(0))
 		print('Done.')
 
 # if program was called with --clean, perform clean-up here
@@ -118,14 +131,9 @@ for addr in ADDR_SPACE:
 if CLEAN:
 	for addr in ADDR_SPACE:
 		print(addr)
-		os.remove(addr+"/sndstate.txt")
-		f=open(addr+"/sndstate.txt", "a+")
-		f.write("sndsqn: " + pad_num(0))
-		f.close()
-
-		os.remove(addr+"/rcvstate.txt")
-		f=open(addr+"/rcvstate.txt", "a+")
-		f.write("rcvsqn: "+ pad_num(0))
+		os.remove(addr+"/state.txt")
+		f=open(addr+"/state.txt", "a+")
+		f.write("sqn: " + pad_num(0))
 		f.close()
 
 		in_dir = NET_PATH + addr + '/IN'

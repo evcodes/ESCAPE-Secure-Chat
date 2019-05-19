@@ -23,22 +23,18 @@ from Crypto.Cipher import PKCS1_OAEP
 from Crypto.Signature import PKCS1_v1_5
 from util import *
 
-
 PARTICIPANT_LIST = ''
 pubkey_list_address = 'SETUP/pubkey_list.txt'
 PASS= ''
 
 def clean():
-	'''
-	delete files in the setup and receiver directories
-	'''
-
 	print("cleaning....")
+	
 
 def get_sender(statefile):
 	ifile = open(statefile,'r')
 	line = ifile.readline()
-	max_sqn = line[len("rcvsqn: "):]
+	max_sqn = line[len("sqn: "):]
 	ifile.close()
 
 	directory = os.listdir("./" + OWN_ADDR+"/IN/")
@@ -89,22 +85,18 @@ netif = network_interface(NET_PATH, OWN_ADDR)
 print('Main loop started...')
 
 while True:
+	# if KeyboardInterrupt:
+	# 	print('Interrupted')
+	# 	clean()
+	# 	try:
+	# 		sys.exit(0)
+	# 	except SystemExit:
+	# 		os._exit(0)
 	
 
 # Calling receive_msg() in non-blocking mode ... 
 	status, msg = netif.receive_msg(blocking=False)
-
-	# if __name__ == '__main__':
-	# 	try:
-	# 		continue
-	# 	except KeyboardInterrupt:
-	# 		print('Interrupted')
-	# 		clean()
-	# 		try:
-	# 			sys.exit(0)
-	# 		except SystemExit:
-	# 			os._exit(0)
-
+	
 	if status:
 		privkey_file = "SETUP/rsa_privkey_" + OWN_ADDR + ".pem"
 
@@ -112,8 +104,10 @@ while True:
 		sym_key = f.read()
 		f.close()
 		
-		state = "./"+ OWN_ADDR+"/rcvstate.txt"
+		state = "./"+ OWN_ADDR+"/state.txt"
 		src = get_sender(state)
+
+		ifIncreaseSeq = (src != OWN_ADDR)
 
 		# lookup public key and verify
 		pubkey_read = open(pubkey_list_address, 'r')
@@ -128,11 +122,13 @@ while True:
 		sender_pub_key = read_public_key(src)
 
 		# msg = decrypt_message(msg, "./" + OWN_ADDR + "/rcvstate.txt", "./" + OWN_ADDR + "/rsa_pubkey.pem")    
-		print(src + ": " + decrypt_message(msg, state, shared_key, sender_pub_key))      # if status is True, then a message was returned in msg
+		print(src + ": " + decrypt_message(ifIncreaseSeq, msg, state, shared_key, sender_pub_key))      # if status is True, then a message was returned in msg
 	else: time.sleep(2)        # otherwise msg is empty
 
 # Calling receive_msg() in blocking mode ...
 	status, msg = netif.receive_msg(blocking=True) 
+
+
 	
 	privkey_file = "SETUP/rsa_privkey_" + OWN_ADDR + ".pem"
 
@@ -140,8 +136,12 @@ while True:
 	sym_key = f.read()
 	f.close()
 	
-	state = "./"+ OWN_ADDR+"/rcvstate.txt"
+	state = "./"+ OWN_ADDR+"/state.txt"
+	print(state)
 	src = get_sender(state)
+	print(src)
+	
+	ifIncreaseSeq = (src != OWN_ADDR)
 
 	# lookup public key and verify
 	pubkey_read = open(pubkey_list_address, 'r')
@@ -155,6 +155,6 @@ while True:
 	shared_key = RSA_cipher.decrypt(sym_key)
 	sender_pub_key = read_public_key(src)
    # when returns, status is True and msg contains a message 
-	print(src +": "+ decrypt_message(msg, state, shared_key, sender_pub_key))
+	print(src +": "+ decrypt_message(ifIncreaseSeq,msg, state, shared_key, sender_pub_key))
 
     

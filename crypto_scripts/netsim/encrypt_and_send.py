@@ -22,13 +22,13 @@ def read_state(statefile):
     ifile = open(statefile, 'rt')
     # Get sqn num
     line = ifile.readline()
-    sndsqn = (line[len("sndsqn: "):])
-    sndsqn = int(sndsqn, base=10)
+    sqn = (line[len("sqn: "):])
+    sqn = int(sqn, base=10)
     ifile.close()
-    return (sndsqn)
+    return (sqn)
 
-def update_state(sndsqn,statefile):
-    state = "sndsqn: " + str(pad_num(sndsqn + 1))
+def update_state(sqn,statefile):
+    state = "sqn: " + str(pad_num(sqn + 1))
     ofile = open(statefile, 'wt')
     ofile.write(state)
     ofile.close()
@@ -57,7 +57,7 @@ def encrypt_message(m,statefile,shared_key,privkey):
     sign_content = sqn_num+nonce+ciphertext
     sign = generate_signature(sign_content,privkey)
 
-    update_state(sqn,statefile)
+    # update_state(sqn,statefile)
     sqn = pad_num(sqn)
     sqn = str(sqn).encode('utf-8')
 

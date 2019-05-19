@@ -8,24 +8,24 @@ from util import verify_signature,pad_num
 
 def verify_sqn(msg_sqn,rcv_state):
     msg_sqn = msg_sqn.decode('utf-8')
-    return int(msg_sqn) >= rcv_state
+    return int(msg_sqn) == rcv_state
     
 def read_state(statefile):
     #Get sqn number
     ifile = open(statefile,'r')
     line = ifile.readline()
-    rcvsqn = line[len("rcvsqn: "):]
-    rcvsqn = int(rcvsqn, base =10)
+    sqn = line[len("sqn: "):]
+    sqn = int(sqn, base =10)
     ifile.close()
-    return (rcvsqn)
+    return (sqn)
 
-def update_state(statefile,rcvsqn):
-    state = "rcvsqn: " + str(pad_num(rcvsqn + 1))
+def update_state(statefile,sqn):
+    state = "sqn: " + str(pad_num(sqn + 1))
     ofile = open(statefile, 'wt')
     ofile.write(state)
     ofile.close()
     
-def decrypt_message(msg,statefile,sharedkey, pubkey):
+def decrypt_message(ifIncrease,msg,statefile,sharedkey, pubkey):
     rcv = read_state(statefile)
     ## If message number is not greater than the one in our state file, do not decrypt
     # Seperate parts of the message
