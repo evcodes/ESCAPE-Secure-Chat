@@ -93,6 +93,13 @@ print('  Clean-up requested: ', CLEAN)
 print('--------------------------------------------')
 
 # create folders for addresses if needed
+
+if not os.path.exists(NET_PATH+"SETUP"):
+	print("Creating setup folder...")
+	os.mkdir(NET_PATH+"SETUP")
+	f = open(NET_PATH+"SETUP/pubkey_list.txt", "a+")
+	f.close()
+
 for addr in ADDR_SPACE:
 	addr_dir = NET_PATH + addr
 	if not os.path.exists(addr_dir):

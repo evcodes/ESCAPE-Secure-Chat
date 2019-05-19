@@ -8,7 +8,7 @@ from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
 
 NET_PATH = './'
-OWN_ADDR = 'A'
+OWN_ADDR = ''
 password =''
 
 # ------------       

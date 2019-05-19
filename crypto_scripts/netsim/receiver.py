@@ -28,6 +28,13 @@ PARTICIPANT_LIST = ''
 pubkey_list_address = 'SETUP/pubkey_list.txt'
 PASS= ''
 
+def clean():
+	'''
+	delete files in the setup and receiver directories
+	'''
+
+	print("cleaning....")
+
 def get_sender(statefile):
 	ifile = open(statefile,'r')
 	line = ifile.readline()
@@ -87,7 +94,16 @@ while True:
 # Calling receive_msg() in non-blocking mode ... 
 	status, msg = netif.receive_msg(blocking=False)
 
-	
+	# if __name__ == '__main__':
+	# 	try:
+	# 		continue
+	# 	except KeyboardInterrupt:
+	# 		print('Interrupted')
+	# 		clean()
+	# 		try:
+	# 			sys.exit(0)
+	# 		except SystemExit:
+	# 			os._exit(0)
 
 	if status:
 		privkey_file = "SETUP/rsa_privkey_" + OWN_ADDR + ".pem"
